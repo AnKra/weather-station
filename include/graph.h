@@ -3,80 +3,101 @@
 
 #include "colors.h"
 
-void Graph(TFT_eSPI &tft, byte dp, int width, int height, double x_min,
-           double x_max, double cell_width, double y_min, double y_max,
-           double cell_height, const String &title, const String &x_label,
-           const String &y_label) {
-  auto grid_color = DKBLUE;
-  auto axes_color = RED;
-  auto text_color = WHITE;
-  auto background_color = BLACK;
-  uint8_t font = 1;
+namespace weather_station {
 
-  // draw y scale
-  auto unit_height_px = height / (y_max - y_min);
-  for (auto y = y_min; y <= y_max; y += cell_height) {
-    auto y_px = height - 1 - (y - y_min) * unit_height_px;
-    if (y == 0) {
-      tft.drawLine(0, y_px, width, y_px, axes_color);
+class Graph {
+public:
+  Graph(const int width, const int height, const double x_min,
+        const double x_max, const double cell_width, const double y_min,
+        const double y_max, const double cell_height)
+      : width_px_(width), height_px_(height), x_min_(x_min), x_max_(x_max),
+        cell_width_(cell_width), y_min_(y_min), y_max_(y_max),
+        cell_height_(cell_height) {
+    unit_height_px_ = height / (y_max - y_min);
+    unit_width_px_ = width / (x_max - x_min);
 
-      // axis label
-      tft.setTextColor(axes_color, background_color);
-      tft.setTextDatum(MR_DATUM);
-      tft.drawString(x_label, (int)width, (int)y_px, font);
-    } else {
-      tft.drawLine(0, y_px, width, y_px, grid_color);
-    }
-
-    // axis labels
-    tft.setTextDatum(ML_DATUM);
-    tft.setTextColor(text_color, background_color);
-    tft.drawFloat(y, dp, 0, y_px, font);
+    initializeTft();
   }
 
-  // draw x scale
-  auto unit_width_px = width / (x_max - x_min);
-  for (auto x = x_min; x <= x_max; x += cell_width) {
-    auto x_px = (x - x_min) * unit_width_px;
-    if (x == 0) {
-      tft.drawLine(x_px, 0, x_px, height, axes_color);
+  void drawAxes(const String &title, const String &x_label,
+                const String &y_label) {
+    drawTextLabel(title, (width_px_ / 2), 0, TC_DATUM);
 
-      // axis label
-      tft.setTextColor(axes_color, background_color);
-      tft.setTextDatum(TL_DATUM);
-      tft.drawString(y_label, (int)x_px, 0, font);
-    } else {
-      tft.drawLine(x_px, 0, x_px, height, grid_color);
+    // draw y scale
+    for (auto y = y_min_; y <= y_max_; y += cell_height_) {
+      auto y_px = yToPx(y);
+      auto color = grid_color_;
+      if (y == 0) {
+        drawTextLabel(x_label, width_px_, y_px, BR_DATUM);
+        color = axes_color_;
+      }
+      tft_.drawLine(0, y_px, width_px_, y_px, color);
+      drawDataLabel(y, 0, y_px, ML_DATUM);
     }
 
-    // axis labels
-    tft.setTextDatum(BC_DATUM);
-    tft.setTextColor(text_color, background_color);
-    tft.drawFloat(x, dp, (int)x_px, height, font);
+    // draw x scale
+    for (auto x = x_min_; x <= x_max_; x += cell_width_) {
+      auto x_px = xToPx(x);
+      auto color = grid_color_;
+      if (x == 0) {
+        drawTextLabel(y_label, x_px, 0, TL_DATUM);
+        color = axes_color_;
+      }
+      tft_.drawLine(x_px, 0, x_px, height_px_, color);
+      drawDataLabel(x, x_px, height_px_, BC_DATUM);
+    }
   }
 
-  // now draw the graph labels
-  tft.setTextDatum(TC_DATUM);
-  tft.setTextColor(text_color, background_color);
-  tft.drawString(title, (int)(width / 2), 0, 1);
-}
+  void drawPixel(const double x, const double y, const unsigned int color) {
+    tft_.drawPixel(xToPx(x), yToPx(y), color);
+  }
 
-void drawPixel(TFT_eSPI &tft, double x, double y, int width, int height,
-               double x_min, double x_max, double cell_width, double y_min,
-               double y_max, double cell_height, unsigned int color) {
-  auto data_color = color;
+private:
+  void initializeTft() {
+    tft_.begin();
+    tft_.fillScreen(BLACK);
+    tft_.setRotation(1);
+  }
 
-  auto unit_width_px = width / (x_max - x_min);
-  auto unit_height_px = height / (y_max - y_min);
+  void drawTextLabel(const String &label, const int x, const int y,
+                     uint8_t position) {
+    tft_.setTextDatum(position);
+    tft_.setTextColor(axes_color_, background_color_);
+    tft_.drawString(label, x, y, font_);
+  }
 
-  auto x_abs = x - x_min;
-  auto y_abs = y - y_min;
+  void drawDataLabel(const float label, const int x, const int y,
+                     uint8_t position) {
+    tft_.setTextDatum(position);
+    tft_.setTextColor(text_color_, background_color_);
+    tft_.drawFloat(label, dp_, x, y, font_);
+  }
 
-  auto x_pixel = x_abs * unit_width_px;
-  auto y_pixel = height - 1 - y_abs * unit_height_px;
+  int xToPx(const double x) const { return (x - x_min_) * unit_width_px_; }
 
-  tft.drawPixel(x_pixel, y_pixel, data_color);
-  // tft.setTextDatum(MC_DATUM);
-  // tft.drawChar(x_pixel, y_pixel, 'x', data_color, 1, 1);
-  // tft.drawLine(ox, oy, x, y, data_color);
-}
+  int yToPx(const double y) const {
+    return (height_px_ - 1) - (y - y_min_) * unit_height_px_;
+  }
+
+private:
+  const int grid_color_ = DKBLUE;
+  const int axes_color_ = RED;
+  const int text_color_ = WHITE;
+  const int background_color_ = BLACK;
+  const uint8_t font_ = 1;
+  const byte dp_ = 1;
+
+  TFT_eSPI tft_;
+  int width_px_;
+  int height_px_;
+  double x_min_;
+  double x_max_;
+  double cell_width_;
+  double y_min_;
+  double y_max_;
+  double cell_height_;
+  int unit_width_px_;
+  int unit_height_px_;
+};
+
+} // namespace weather_station
