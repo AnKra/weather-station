@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include <SPIFFS.h>
 #include <TFT_eSPI.h>
+#include <time.h>
 
 #include <algorithm>
 
@@ -73,8 +74,18 @@ void setup() {
   graph->drawAxes(title, x_label, y_label);
 }
 
+void printLocalTime() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Local Time not available.");
+  } else {
+    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  }
+}
+
 void loop() {
   try {
+    printLocalTime();  // Demo NTP timing
     pBLEScan->start(scanTime, false);
   } catch (const std::runtime_error &e) {
     Serial.println(e.what());

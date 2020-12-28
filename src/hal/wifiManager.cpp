@@ -1,12 +1,18 @@
 #include "wifiManager.h"
 
+#include <time.h>
+
 namespace hal {
 
 // Module-Local variables
 boolean wifiConnected = false;
 
+constexpr static const char* ntpServer = "pool.ntp.org";
+
 // Module-Local functions
 void wifiEventHandler(WiFiEvent_t event);
+
+void startNtp();
 
 // Module implementation
 
@@ -41,6 +47,7 @@ void wifiEventHandler(WiFiEvent_t event) {
       Serial.println();
 
       wifiConnected = true;
+      startNtp();
       break;
     }
     case SYSTEM_EVENT_WIFI_READY:
@@ -79,5 +86,11 @@ void stopWifi() {
 }
 
 bool isWifiAvailable() { return wifiConnected; }
+
+void startNtp() {
+  long gmtOffset_sec = 3600;   // GMT + 1 hour
+  int daylightOffset_sec = 0;  // Ignore daylight savings time
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+}
 
 }  // namespace hal
