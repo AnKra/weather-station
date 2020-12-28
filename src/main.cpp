@@ -13,6 +13,7 @@
 #include "colors.h"
 #include "graph.h"
 #include "hal/Settings.h"
+#include "hal/wifiManager.h"
 
 // bluetooth
 int scanTime = 100;  // In seconds
@@ -36,6 +37,10 @@ void setup() {
   }
   Serial.println("Using Settings:");
   settings.print();
+
+  // Start WiFi
+  hal::setupWifi();
+  hal::startWifi(settings.getSsid().c_str(), settings.getPassword().c_str());
 
   // bluetooth
   std::function<void(double x, double y)> draw_function = [](const double x, const double y) {

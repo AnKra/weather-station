@@ -15,6 +15,9 @@ class Settings {
   void load();
   void print();
 
+  const std::string& getSsid() const { return ssid_; }
+  const std::string& getPassword() const { return password_; }
+
  private:
   std::string ssid_;
   std::string password_;
