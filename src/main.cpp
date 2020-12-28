@@ -50,8 +50,7 @@ void setup() {
   const String x_label = "t";
   const String y_label = "°C";
 
-  graph = new weather_station::Graph(width, height, x_min, x_max, cell_width, y_min, y_max,
-                                     cell_height);
+  graph = new weather_station::Graph(width, height, x_min, x_max, cell_width, y_min, y_max, cell_height);
   graph->drawAxes(title, x_label, y_label);
 }
 

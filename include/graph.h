@@ -7,8 +7,8 @@ namespace weather_station {
 
 class Graph {
  public:
-  Graph(const int width, const int height, const double x_min, const double x_max,
-        const double cell_width, const double y_min, const double y_max, const double cell_height)
+  Graph(const int width, const int height, const double x_min, const double x_max, const double cell_width,
+        const double y_min, const double y_max, const double cell_height)
       : width_px_(width),
         height_px_(height),
         x_min_(x_min),
