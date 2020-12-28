@@ -18,8 +18,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install platformio
-    - name: Run PlatformIO
-      run: platformio run -d ${{ github.workspace }} -e native
 
-    - name: Run Unittests
-      run: platformio test
+    - name: Run Unittests in PlatformIO
+      run: platformio test -d ${{ github.workspace }} -e native
