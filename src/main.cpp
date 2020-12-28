@@ -14,7 +14,7 @@
 #include "graph.h"
 
 // bluetooth
-int scanTime = 100; // In seconds
+const int scanTime = 100; // In seconds
 BLEScan *pBLEScan;
 
 // display
@@ -41,17 +41,17 @@ void setup() {
   pBLEScan->setWindow(1); // less or equal setInterval value
 
   // display
-  int width = TFT_HEIGHT;
-  int height = TFT_WIDTH;
-  double x_min = -2;
-  double x_max = 20;
-  double cell_width = 2;
-  double y_min = -6;
-  double y_max = 40;
-  double cell_height = 2;
-  const String title = "Balkon";
-  const String x_label = "t";
-  const String y_label = "°C";
+  const int width = TFT_HEIGHT;
+  const int height = TFT_WIDTH;
+  const double x_min = -2;
+  const double x_max = 20;
+  const double cell_width = 2;
+  const double y_min = -6;
+  const double y_max = 40;
+  const double cell_height = 2;
+  const String title = {"Balkon"};
+  const String x_label = {"t"};
+  const String y_label = {"°C"};
 
   graph = new weather_station::Graph(width, height, x_min, x_max, cell_width,
                                      y_min, y_max, cell_height);
