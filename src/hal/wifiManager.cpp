@@ -1,7 +1,5 @@
 #include "wifiManager.h"
 
-#include <time.h>
-
 namespace hal {
 
 // Module-Local variables
@@ -88,8 +86,8 @@ void stopWifi() {
 bool isWifiAvailable() { return wifiConnected; }
 
 void startNtp() {
-  long gmtOffset_sec = 3600;   // GMT + 1 hour
-  int daylightOffset_sec = 0;  // Ignore daylight savings time
+  const long gmtOffset_sec = 3600;  // GMT + 1 hour
+  int daylightOffset_sec = 0;       // Ignore daylight savings time
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 

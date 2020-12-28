@@ -7,7 +7,7 @@
 #include "ruuvi_decoder.h"
 
 void unittest_decode_positive_data() {
-  std::string raw_data = "99040500249C40B4C003DCFF7C017091F65267AAF856BBF1D599";
+  const std::string raw_data = {"99040500249C40B4C003DCFF7C017091F65267AAF856BBF1D599"};
 
   double temperature = 0;
   double humidity = 0;
@@ -21,7 +21,7 @@ void unittest_decode_positive_data() {
 }
 
 void unittest_decode_negative_data() {
-  std::string raw_data = "990405ffbc9c40b5c6fff80014fc0092b64b650af856bbf1d599";
+  const std::string raw_data = {"990405ffbc9c40b5c6fff80014fc0092b64b650af856bbf1d599"};
 
   double temperature = 0;
   double humidity = 0;
