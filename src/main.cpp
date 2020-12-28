@@ -14,7 +14,7 @@
 #include "graph.h"
 
 // bluetooth
-int scanTime = 100; // In seconds
+int scanTime = 100;  // In seconds
 BLEScan *pBLEScan;
 
 // display
@@ -24,8 +24,7 @@ void setup() {
   Serial.begin(115200);
 
   // bluetooth
-  std::function<void(double x, double y)> draw_function = [](const double x,
-                                                             const double y) {
+  std::function<void(double x, double y)> draw_function = [](const double x, const double y) {
     assert(graph);
     graph->drawPixel(x, y, YELLOW);
   };
@@ -33,12 +32,10 @@ void setup() {
   Serial.println("Scanning...");
   BLEDevice::init("");
   pBLEScan = BLEDevice::getScan();
-  pBLEScan->setAdvertisedDeviceCallbacks(
-      new weather_station::BluetoothListener(draw_function));
-  pBLEScan->setActiveScan(
-      true); // active scan uses more power, but get results faster
+  pBLEScan->setAdvertisedDeviceCallbacks(new weather_station::BluetoothListener(draw_function));
+  pBLEScan->setActiveScan(true);  // active scan uses more power, but get results faster
   pBLEScan->setInterval(1);
-  pBLEScan->setWindow(1); // less or equal setInterval value
+  pBLEScan->setWindow(1);  // less or equal setInterval value
 
   // display
   int width = TFT_HEIGHT;
@@ -53,8 +50,8 @@ void setup() {
   const String x_label = "t";
   const String y_label = "°C";
 
-  graph = new weather_station::Graph(width, height, x_min, x_max, cell_width,
-                                     y_min, y_max, cell_height);
+  graph = new weather_station::Graph(width, height, x_min, x_max, cell_width, y_min, y_max,
+                                     cell_height);
   graph->drawAxes(title, x_label, y_label);
 }
 

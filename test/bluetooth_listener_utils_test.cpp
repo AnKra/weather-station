@@ -1,8 +1,8 @@
 #ifndef BLUETOOTH_LISTENER_TEST_H
 #define BLUETOOTH_LISTENER_TEST_H
 
-#include <string>
 #include <unity.h>
+#include <string>
 
 #include "ruuvi_decoder.h"
 
