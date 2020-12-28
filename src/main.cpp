@@ -4,6 +4,7 @@
 #include <BLEScan.h>
 #include <BLEUtils.h>
 #include <SPI.h>
+#include <SPIFFS.h>
 #include <TFT_eSPI.h>
 
 #include <algorithm>
