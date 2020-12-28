@@ -1,27 +1,35 @@
-#include <algorithm>
-
 #include <BLEAddress.h>
 #include <BLEAdvertisedDevice.h>
 #include <BLEDevice.h>
 #include <BLEScan.h>
 #include <BLEUtils.h>
-
 #include <SPI.h>
 #include <TFT_eSPI.h>
+
+#include <algorithm>
 
 #include "bluetooth_listener.h"
 #include "colors.h"
 #include "graph.h"
+#include "hal/Settings.h"
 
 // bluetooth
-int scanTime = 100; // In seconds
+int scanTime = 100;  // In seconds
 BLEScan *pBLEScan;
 
 // display
 weather_station::Graph *graph;
 
+// settings
+hal::Settings settings;
+
 void setup() {
   Serial.begin(115200);
+
+  // Load Settings from flash
+  settings.load();
+  Serial.println("Using Settings:");
+  settings.print();
 
   // bluetooth
   std::function<void(double x, double y)> draw_function = [](const double x,
@@ -36,9 +44,9 @@ void setup() {
   pBLEScan->setAdvertisedDeviceCallbacks(
       new weather_station::BluetoothListener(draw_function));
   pBLEScan->setActiveScan(
-      true); // active scan uses more power, but get results faster
+      true);  // active scan uses more power, but get results faster
   pBLEScan->setInterval(1);
-  pBLEScan->setWindow(1); // less or equal setInterval value
+  pBLEScan->setWindow(1);  // less or equal setInterval value
 
   // display
   int width = TFT_HEIGHT;

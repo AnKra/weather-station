@@ -5,6 +5,9 @@
 .vscode/launch.json
 .vscode/ipch
 
+# Configuration files
+data/WifiConfig.ini
+
 # Prerequisites
 *.d
 
