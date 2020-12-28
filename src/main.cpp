@@ -17,8 +17,8 @@
 #include "hal/wifiManager.h"
 
 // bluetooth
-int scanTime = 100;  // In seconds
-BLEScan *pBLEScan;
+const int scan_time = 100;  // In seconds
+BLEScan *ble_scan;
 
 // display
 weather_station::Graph *graph;
@@ -51,24 +51,24 @@ void setup() {
 
   Serial.println("Scanning...");
   BLEDevice::init("");
-  pBLEScan = BLEDevice::getScan();
-  pBLEScan->setAdvertisedDeviceCallbacks(new weather_station::BluetoothListener(draw_function));
-  pBLEScan->setActiveScan(true);  // active scan uses more power, but get results faster
-  pBLEScan->setInterval(1);
-  pBLEScan->setWindow(1);  // less or equal setInterval value
+  ble_scan = BLEDevice::getScan();
+  ble_scan->setAdvertisedDeviceCallbacks(new weather_station::BluetoothListener(draw_function));
+  ble_scan->setActiveScan(true);  // active scan uses more power, but get results faster
+  ble_scan->setInterval(1);
+  ble_scan->setWindow(1);  // less or equal setInterval value
 
   // display
-  int width = TFT_HEIGHT;
-  int height = TFT_WIDTH;
-  double x_min = -2;
-  double x_max = 20;
-  double cell_width = 2;
-  double y_min = -6;
-  double y_max = 40;
-  double cell_height = 2;
-  const String title = "Balkon";
-  const String x_label = "t";
-  const String y_label = "°C";
+  const int width = TFT_HEIGHT;
+  const int height = TFT_WIDTH;
+  const double x_min = -2;
+  const double x_max = 20;
+  const double cell_width = 2;
+  const double y_min = -6;
+  const double y_max = 40;
+  const double cell_height = 2;
+  const String title = {"Balkon"};
+  const String x_label = {"t"};
+  const String y_label = {"°C"};
 
   graph = new weather_station::Graph(width, height, x_min, x_max, cell_width, y_min, y_max, cell_height);
   graph->drawAxes(title, x_label, y_label);
@@ -86,9 +86,9 @@ void printLocalTime() {
 void loop() {
   try {
     printLocalTime();  // Demo NTP timing
-    pBLEScan->start(scanTime, false);
+    ble_scan->start(scan_time, false);
   } catch (const std::runtime_error &e) {
     Serial.println(e.what());
   }
-  pBLEScan->clearResults();
+  ble_scan->clearResults();
 }
