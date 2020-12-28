@@ -27,7 +27,12 @@ void setup() {
   Serial.begin(115200);
 
   // Load Settings from flash
-  settings.load();
+  if (SPIFFS.begin(true)) {
+    printf("SPIFFS mount succeeded.\n");
+    settings.load();
+  } else {
+    printf("SPIFFS mount failed.\n");
+  }
   Serial.println("Using Settings:");
   settings.print();
 
