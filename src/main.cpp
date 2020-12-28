@@ -6,9 +6,6 @@
 #include <SPI.h>
 #include <SPIFFS.h>
 #include <TFT_eSPI.h>
-#include <time.h>
-
-#include <algorithm>
 
 #include "bluetooth_listener.h"
 #include "colors.h"
@@ -16,26 +13,26 @@
 #include "hal/Settings.h"
 #include "hal/wifiManager.h"
 
+// general
+bool setup_successful = false;
+
 // bluetooth
-const int scan_time = 100;  // In seconds
+const int scan_time = 100;
 BLEScan *ble_scan;
 
 // display
 weather_station::Graph *graph;
 
-// settings
-hal::Settings settings;
-
 void setup() {
   Serial.begin(115200);
 
   // Load Settings from flash
-  if (SPIFFS.begin(true)) {
-    printf("SPIFFS mount succeeded.\n");
-    settings.load();
-  } else {
-    printf("SPIFFS mount failed.\n");
+  hal::Settings settings;
+  if (!SPIFFS.begin(true)) {
+    printf("ERROR: SPIFFS mount failed.\n");
+    return;
   }
+  settings.load();
   Serial.println("Using Settings:");
   settings.print();
 
@@ -72,18 +69,25 @@ void setup() {
 
   graph = new weather_station::Graph(width, height, x_min, x_max, cell_width, y_min, y_max, cell_height);
   graph->drawAxes(title, x_label, y_label);
+
+  setup_successful = true;
 }
 
 void printLocalTime() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
-    Serial.println("Local Time not available.");
+    Serial.println("WARNING: Local Time not available.");
   } else {
     Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
   }
 }
 
 void loop() {
+  if (!setup_successful) {
+    Serial.println("ERROR: Setup failed. Check for error messages.");
+    return;
+  }
+
   try {
     printLocalTime();  // Demo NTP timing
     ble_scan->start(scan_time, false);
