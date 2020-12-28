@@ -1,4 +1,4 @@
-name: PlatformIO Target CI Build
+name: PlatformIO Native UnitTest
 
 on: [push]
 
@@ -19,4 +19,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install platformio
     - name: Run PlatformIO
-      run: platformio run -d ${{ github.workspace }} -e esp32dev
+      run: platformio run -d ${{ github.workspace }} -e native
+
+    - name: Run Unittests
+      run: platformio test
