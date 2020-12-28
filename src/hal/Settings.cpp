@@ -13,8 +13,7 @@ void readline(File& f, std::string& target) {
   target.erase();
 
   memset(&buffer, 0, bufferSize);
-  size_t bytesRead = f.readBytesUntil('\n', reinterpret_cast<uint8_t*>(&buffer),
-                                      bufferSize - 1);
+  size_t bytesRead = f.readBytesUntil('\n', reinterpret_cast<uint8_t*>(&buffer), bufferSize - 1);
   if (bytesRead > 0) {
     target.append(buffer);
   }
