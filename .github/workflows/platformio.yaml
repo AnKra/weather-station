@@ -5,15 +5,12 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20-04
 
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
-
-    - name: Copy WiFi configuration
-      run: cp ${{ github.workspace }}/src/hal/_wificonfig.h ${{ github.workspace }}/src/wificonfig.h
 
     - name: Set up Python
       uses: actions/setup-python@v1
