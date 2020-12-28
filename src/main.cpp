@@ -7,11 +7,11 @@
 #include <SPIFFS.h>
 #include <TFT_eSPI.h>
 
-#include "bluetooth_listener.h"
-#include "colors.h"
-#include "graph.h"
 #include "hal/Settings.h"
 #include "hal/wifiManager.h"
+#include "ruuvi/bluetooth_listener.h"
+#include "tft/colors.h"
+#include "tft/graph.h"
 
 // general
 bool setup_successful = false;
@@ -21,7 +21,7 @@ const int scan_time = 100;
 BLEScan *ble_scan;
 
 // display
-weather_station::Graph *graph;
+weather_station::tft::Graph *graph;
 
 void setup() {
   Serial.begin(115200);
@@ -49,7 +49,7 @@ void setup() {
   Serial.println("Scanning...");
   BLEDevice::init("");
   ble_scan = BLEDevice::getScan();
-  ble_scan->setAdvertisedDeviceCallbacks(new weather_station::BluetoothListener(draw_function));
+  ble_scan->setAdvertisedDeviceCallbacks(new weather_station::ruuvi::BluetoothListener(draw_function));
   ble_scan->setActiveScan(true);  // active scan uses more power, but get results faster
   ble_scan->setInterval(1);
   ble_scan->setWindow(1);  // less or equal setInterval value
@@ -67,7 +67,7 @@ void setup() {
   const String x_label = {"t"};
   const String y_label = {"°C"};
 
-  graph = new weather_station::Graph(width, height, x_min, x_max, cell_width, y_min, y_max, cell_height);
+  graph = new weather_station::tft::Graph(width, height, x_min, x_max, cell_width, y_min, y_max, cell_height);
   graph->drawAxes(title, x_label, y_label);
 
   setup_successful = true;

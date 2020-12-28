@@ -4,6 +4,7 @@
 #include "colors.h"
 
 namespace weather_station {
+namespace tft {
 
 class Graph {
  public:
@@ -99,4 +100,5 @@ class Graph {
   int unit_height_px_;
 };
 
+}  // namespace tft
 }  // namespace weather_station

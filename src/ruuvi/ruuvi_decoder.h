@@ -5,6 +5,7 @@
 #include <string>
 
 namespace weather_station {
+namespace ruuvi {
 
 static unsigned short int hexToUnsignedDec(const std::string &hex_val) {
   const auto supported_hex_length = 4;
@@ -51,4 +52,5 @@ static void decodeData(const std::string &raw_data, double &temperature, double 
   pressure = hexToUnsignedDec(hex_data.substr(14, 4)) + 50000;
 }
 
+}  // namespace ruuvi
 }  // namespace weather_station

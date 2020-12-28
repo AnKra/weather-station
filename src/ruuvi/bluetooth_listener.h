@@ -9,6 +9,7 @@
 #include "ruuvi_decoder.h"
 
 namespace weather_station {
+namespace ruuvi {
 
 class BluetoothListener : public BLEAdvertisedDeviceCallbacks {
  public:
@@ -53,4 +54,5 @@ class BluetoothListener : public BLEAdvertisedDeviceCallbacks {
   std::function<void(double, double)> draw_function_;
 };
 
+}  // namespace ruuvi
 }  // namespace weather_station
