@@ -6,12 +6,16 @@
 namespace weather_station {
 
 class Graph {
-public:
-  Graph(const int width, const int height, const double x_min,
-        const double x_max, const double cell_width, const double y_min,
-        const double y_max, const double cell_height)
-      : width_px_(width), height_px_(height), x_min_(x_min), x_max_(x_max),
-        cell_width_(cell_width), y_min_(y_min), y_max_(y_max),
+ public:
+  Graph(const int width, const int height, const double x_min, const double x_max, const double cell_width,
+        const double y_min, const double y_max, const double cell_height)
+      : width_px_(width),
+        height_px_(height),
+        x_min_(x_min),
+        x_max_(x_max),
+        cell_width_(cell_width),
+        y_min_(y_min),
+        y_max_(y_max),
         cell_height_(cell_height) {
     unit_height_px_ = height / (y_max - y_min);
     unit_width_px_ = width / (x_max - x_min);
@@ -19,8 +23,7 @@ public:
     initializeTft();
   }
 
-  void drawAxes(const String &title, const String &x_label,
-                const String &y_label) {
+  void drawAxes(const String &title, const String &x_label, const String &y_label) {
     drawTextLabel(title, (width_px_ / 2), 0, TC_DATUM);
 
     // draw y scale
@@ -52,22 +55,20 @@ public:
     tft_.drawPixel(xToPx(x), yToPx(y), color);
   }
 
-private:
+ private:
   void initializeTft() {
     tft_.begin();
     tft_.fillScreen(BLACK);
     tft_.setRotation(1);
   }
 
-  void drawTextLabel(const String &label, const int x, const int y,
-                     uint8_t position) {
+  void drawTextLabel(const String &label, const int x, const int y, uint8_t position) {
     tft_.setTextDatum(position);
     tft_.setTextColor(axes_color_, background_color_);
     tft_.drawString(label, x, y, font_);
   }
 
-  void drawDataLabel(const float label, const int x, const int y,
-                     uint8_t position) {
+  void drawDataLabel(const float label, const int x, const int y, uint8_t position) {
     tft_.setTextDatum(position);
     tft_.setTextColor(text_color_, background_color_);
     tft_.drawFloat(label, dp_, x, y, font_);
@@ -75,11 +76,9 @@ private:
 
   int xToPx(const double x) const { return (x - x_min_) * unit_width_px_; }
 
-  int yToPx(const double y) const {
-    return (height_px_ - 1) - (y - y_min_) * unit_height_px_;
-  }
+  int yToPx(const double y) const { return (height_px_ - 1) - (y - y_min_) * unit_height_px_; }
 
-private:
+ private:
   const int grid_color_ = DKBLUE;
   const int axes_color_ = RED;
   const int text_color_ = WHITE;
@@ -100,4 +99,4 @@ private:
   int unit_height_px_;
 };
 
-} // namespace weather_station
+}  // namespace weather_station

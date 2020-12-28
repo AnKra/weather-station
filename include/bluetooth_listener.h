@@ -11,10 +11,8 @@
 namespace weather_station {
 
 class BluetoothListener : public BLEAdvertisedDeviceCallbacks {
-public:
-  BluetoothListener(std::function<void(double, double)> draw_function) {
-    draw_function_ = draw_function;
-  }
+ public:
+  BluetoothListener(std::function<void(double, double)> draw_function) { draw_function_ = draw_function; }
 
   void onResult(BLEAdvertisedDevice advertised_device) {
     if (advertised_device.getAddress().toString() == mac_address_) {
@@ -26,10 +24,9 @@ public:
     }
   }
 
-private:
+ private:
   static std::string convertToHex(const std::string &manufacturer_data) {
-    return BLEUtils::buildHexData(nullptr, (uint8_t *)manufacturer_data.data(),
-                                  manufacturer_data.length());
+    return BLEUtils::buildHexData(nullptr, (uint8_t *)manufacturer_data.data(), manufacturer_data.length());
   }
 
   void printData(const std::string &device_label) const {
@@ -50,10 +47,10 @@ private:
   double temperature_;
   double humidity_;
   double pressure_;
-  double rssi_ruuvi_; // signal strength
+  double rssi_ruuvi_;  // signal strength
 
   int n_received_measurements_ = 0;
   std::function<void(double, double)> draw_function_;
 };
 
-} // namespace weather_station
+}  // namespace weather_station
