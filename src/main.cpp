@@ -57,18 +57,12 @@ void setup() {
   // display
   const int width = TFT_HEIGHT;
   const int height = TFT_WIDTH;
-  const double x_min = -2;
-  const double x_max = 20;
-  const double cell_width = 2;
-  const double y_min = -6;
-  const double y_max = 40;
-  const double cell_height = 2;
   const String title = {"Balkon"};
   const String x_label = {"t"};
   const String y_label = {"°C"};
 
-  graph = new weather_station::tft::Graph(width, height, x_min, x_max, cell_width, y_min, y_max, cell_height);
-  graph->drawAxes(title, x_label, y_label);
+  graph = new weather_station::tft::Graph(width, height, title, x_label, y_label);
+  graph->drawAxes();
 
   setup_successful = true;
 }
