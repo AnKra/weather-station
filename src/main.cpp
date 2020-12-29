@@ -7,11 +7,14 @@
 #include <SPIFFS.h>
 #include <TFT_eSPI.h>
 
+#include <memory>
+
+#include "display/colors.h"
+#include "display/graph.h"
+#include "display/tft.h"
 #include "hal/Settings.h"
 #include "hal/wifiManager.h"
 #include "ruuvi/bluetooth_listener.h"
-#include "tft/colors.h"
-#include "tft/graph.h"
 
 // general
 bool setup_successful = false;
@@ -21,7 +24,7 @@ const int scan_time = 100;
 BLEScan *ble_scan;
 
 // display
-weather_station::tft::Graph *graph;
+weather_station::display::Graph *graph;
 
 void setup() {
   Serial.begin(115200);
@@ -43,7 +46,7 @@ void setup() {
   // bluetooth
   std::function<void(double x, double y)> draw_function = [](const double x, const double y) {
     assert(graph);
-    graph->drawPixel(x, y, YELLOW);
+    graph->addDataPoint(x, y, YELLOW);
   };
 
   Serial.println("Scanning...");
@@ -61,7 +64,8 @@ void setup() {
   const String x_label = {"t"};
   const String y_label = {"°C"};
 
-  graph = new weather_station::tft::Graph(width, height, title, x_label, y_label);
+  std::unique_ptr<weather_station::display::Tft> tft = std::make_unique<weather_station::display::Tft>();
+  graph = new weather_station::display::Graph(std::move(tft), width, height, title, x_label, y_label);
   graph->drawAxes();
 
   setup_successful = true;

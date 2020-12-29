@@ -1,3 +1,6 @@
+#ifndef __RUUVI__BLUETOOTH_LISTENER_H__
+#define __RUUVI__BLUETOOTH_LISTENER_H__
+
 #include <functional>
 
 #include <BLEAddress.h>
@@ -6,7 +9,7 @@
 #include <BLEScan.h>
 #include <BLEUtils.h>
 
-#include "ruuvi_decoder.h"
+#include "ruuvi/ruuvi_decoder.h"
 
 namespace weather_station {
 namespace ruuvi {
@@ -56,3 +59,5 @@ class BluetoothListener : public BLEAdvertisedDeviceCallbacks {
 
 }  // namespace ruuvi
 }  // namespace weather_station
+
+#endif

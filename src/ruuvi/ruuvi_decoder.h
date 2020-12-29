@@ -1,3 +1,6 @@
+#ifndef __RUUVI__RUUVI_DECODER_H__
+#define __RUUVI__RUUVI_DECODER_H__
+
 #include <algorithm>
 #include <cctype>
 #include <sstream>
@@ -54,3 +57,5 @@ static void decodeData(const std::string &raw_data, double &temperature, double 
 
 }  // namespace ruuvi
 }  // namespace weather_station
+
+#endif
