@@ -51,11 +51,11 @@ class Graph {
       } else {
         tft_->drawGridLine(x_px, 0, x_px, height_px_);
       }
-      tft_->drawDataLabel(x, x_px, height_px_, BC_DATUM);
+      tft_->drawTimeLabel(x, x_px, height_px_, BC_DATUM);
     }
   }
 
-  void addDataPoint(const double x, const double y, const unsigned int color) {
+  void addDataPoint(const time_t x, const float y, const unsigned int color) {
     x_.push_back(x);
     y_.push_back(y);
 
@@ -63,7 +63,7 @@ class Graph {
     drawAxes();
 
     std::vector<double> tmp;  // unused variable
-    std::transform(x_.begin(), x_.end(), y_.begin(), std::back_inserter(tmp), [&](const double &xx, const double &yy) {
+    std::transform(x_.begin(), x_.end(), y_.begin(), std::back_inserter(tmp), [&](const time_t &xx, const double &yy) {
       tft_->drawPixel(xToPx(xx), yToPx(yy), color);
       return 0.;  // dummy value
     });
@@ -72,21 +72,21 @@ class Graph {
  private:
   void updateVariablesForGraphCalculation() {
     if (x_.size() > 0) {
-      x_min_ = std::floor(*std::min_element(std::begin(x_), std::end(x_))) - 2;
-      x_max_ = std::ceil(*std::max_element(std::begin(x_), std::end(x_))) + 1;
+      x_min_ = *std::min_element(std::begin(x_), std::end(x_)) - cell_width_;
+      x_max_ = *std::max_element(std::begin(x_), std::end(x_)) + cell_width_;
     }
     if (y_.size() > 0) {
-      y_min_ = std::floor(*std::min_element(std::begin(y_), std::end(y_))) - 2;
-      y_max_ = std::ceil(*std::max_element(std::begin(y_), std::end(y_))) + 2;
+      y_min_ = std::floor(*std::min_element(std::begin(y_), std::end(y_))) - 2 * cell_height_;
+      y_max_ = std::ceil(*std::max_element(std::begin(y_), std::end(y_))) + 2 * cell_height_;
     }
 
-    unit_height_px_ = height_px_ / (y_max_ - y_min_);
-    unit_width_px_ = width_px_ / (x_max_ - x_min_);
+    unit_height_px_ = static_cast<float>(height_px_) / (y_max_ - y_min_);
+    unit_width_px_ = static_cast<float>(width_px_) / static_cast<float>(x_max_ - x_min_);
   }
 
-  int xToPx(const double x) const { return (x - x_min_) * unit_width_px_; }
+  int xToPx(const time_t x) const { return static_cast<int>(static_cast<float>(x - x_min_) * unit_width_px_); }
 
-  int yToPx(const double y) const { return (height_px_ - 1) - (y - y_min_) * unit_height_px_; }
+  int yToPx(const double y) const { return static_cast<int>((height_px_ - 1) - (y - y_min_) * unit_height_px_); }
 
  private:
   std::unique_ptr<Tft> tft_;
@@ -97,17 +97,17 @@ class Graph {
   const String x_label_;
   const String y_label_;
 
-  double x_min_ = -2;
-  double x_max_ = 20;
-  double cell_width_ = 1;
-  double y_min_ = -6;
-  double y_max_ = 40;
-  double cell_height_ = 1;
-  int unit_width_px_;
-  int unit_height_px_;
+  time_t x_min_ = 0;
+  time_t x_max_ = 240;
+  const int cell_width_ = 120;
+  float y_min_ = -6;
+  float y_max_ = 40;
+  const float cell_height_ = 1;
+  float unit_width_px_;
+  float unit_height_px_;
 
-  std::vector<double> x_;
-  std::vector<double> y_;
+  std::vector<time_t> x_;
+  std::vector<float> y_;
 };
 
 }  // namespace display

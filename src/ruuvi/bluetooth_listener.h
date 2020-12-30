@@ -24,13 +24,14 @@ class BluetoothListener : public BLEAdvertisedDeviceCallbacks {
       decodeData(raw_data, temperature_, humidity_, pressure_);
       rssi_ruuvi_ = advertised_device.getRSSI();
       printData(advertised_device.toString());
-      draw_function_(++n_received_measurements_, temperature_);
+      draw_function_(temperature_, humidity_);
     }
   }
 
  private:
   static std::string convertToHex(const std::string &manufacturer_data) {
-    return BLEUtils::buildHexData(nullptr, (uint8_t *)manufacturer_data.data(), manufacturer_data.length());
+    return BLEUtils::buildHexData(nullptr, (uint8_t *)manufacturer_data.data(),
+                                  static_cast<uint8_t>(manufacturer_data.length()));
   }
 
   void printData(const std::string &device_label) const {
@@ -48,13 +49,12 @@ class BluetoothListener : public BLEAdvertisedDeviceCallbacks {
   std::string mac_address_ = "f8:56:bb:f1:d5:99";
 
   int voltage_power_;
-  double temperature_;
-  double humidity_;
-  double pressure_;
-  double rssi_ruuvi_;  // signal strength
+  float temperature_;
+  float humidity_;
+  float pressure_;
+  int32_t rssi_ruuvi_;  // signal strength
 
-  int n_received_measurements_ = 0;
-  std::function<void(double, double)> draw_function_;
+  std::function<void(float, float)> draw_function_;
 };
 
 }  // namespace ruuvi

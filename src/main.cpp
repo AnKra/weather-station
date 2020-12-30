@@ -7,6 +7,7 @@
 #include <SPIFFS.h>
 #include <TFT_eSPI.h>
 
+#include <ctime>
 #include <memory>
 
 #include "display/colors.h"
@@ -26,6 +27,17 @@ BLEScan *ble_scan;
 // display
 weather_station::display::Graph *graph;
 
+time_t getTime() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("WARNING: Local Time not available.");
+  } else {
+    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  }
+
+  return mktime(&timeinfo);
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -44,9 +56,9 @@ void setup() {
   hal::startWifi(settings.getSsid().c_str(), settings.getPassword().c_str());
 
   // bluetooth
-  std::function<void(double x, double y)> draw_function = [](const double x, const double y) {
+  std::function<void(float, float)> draw_function = [](const float temperature, const float /* humidity */) {
     assert(graph);
-    graph->addDataPoint(x, y, YELLOW);
+    graph->addDataPoint(getTime(), temperature, YELLOW);
   };
 
   Serial.println("Scanning...");
@@ -71,15 +83,6 @@ void setup() {
   setup_successful = true;
 }
 
-void printLocalTime() {
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("WARNING: Local Time not available.");
-  } else {
-    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-  }
-}
-
 void loop() {
   if (!setup_successful) {
     Serial.println("ERROR: Setup failed. Check for error messages.");
@@ -87,7 +90,6 @@ void loop() {
   }
 
   try {
-    printLocalTime();  // Demo NTP timing
     ble_scan->start(scan_time, false);
   } catch (const std::runtime_error &e) {
     Serial.println(e.what());

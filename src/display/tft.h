@@ -5,6 +5,9 @@
 #include <TFT_eSPI.h>
 
 #include <algorithm>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 #include <vector>
 
 #include "display/colors.h"
@@ -28,19 +31,28 @@ class Tft {
     drawTextLabel(label, label_pos_x, label_pos_y, label_position);
   }
 
-  void drawTextLabel(const String& label, const int x, const int y, uint8_t position) {
+  void drawTextLabel(const String& label, const int32_t x, const int32_t y, const uint8_t position) {
     tft_.setTextDatum(position);
     tft_.setTextColor(axes_color_, background_color_);
     tft_.drawString(label, x, y, font_);
   }
 
-  void drawDataLabel(const float label, const int x, const int y, uint8_t position) {
+  void drawDataLabel(const float label, const int32_t x, const int32_t y, const uint8_t position) {
     tft_.setTextDatum(position);
     tft_.setTextColor(text_color_, background_color_);
     tft_.drawFloat(label, dp_, x, y, font_);
   }
 
-  void drawPixel(const double x, const double y, const unsigned int color) { tft_.drawPixel(x, y, color); }
+  void drawTimeLabel(const time_t time, const int32_t x, const int32_t y, const uint8_t position) {
+    tft_.setTextDatum(position);
+    tft_.setTextColor(text_color_, background_color_);
+    auto tm = *std::localtime(&time);
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%H:%M");
+    tft_.drawString(String(oss.str().c_str()), x, y, font_);
+  }
+
+  void drawPixel(const int32_t x, const int32_t y, const uint32_t color) { tft_.drawPixel(x, y, color); }
 
  private:
   void initializeTft() {
@@ -49,10 +61,10 @@ class Tft {
     tft_.setRotation(1);
   }
 
-  const int grid_color_ = DKBLUE;
-  const int axes_color_ = RED;
-  const int text_color_ = WHITE;
-  const int background_color_ = BLACK;
+  const uint16_t grid_color_ = DKBLUE;
+  const uint16_t axes_color_ = RED;
+  const uint16_t text_color_ = WHITE;
+  const uint16_t background_color_ = BLACK;
   const uint8_t font_ = 1;
   const byte dp_ = 1;
 
