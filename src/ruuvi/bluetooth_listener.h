@@ -20,7 +20,7 @@ class BluetoothListener : public BLEAdvertisedDeviceCallbacks {
 
   void onResult(BLEAdvertisedDevice advertised_device) {
     if (advertised_device.getAddress().toString() == mac_address_) {
-      auto raw_data = convertToHex(advertised_device.getManufacturerData());
+      const auto raw_data = convertToHex(advertised_device.getManufacturerData());
       decodeData(raw_data, temperature_, humidity_, pressure_);
       rssi_ruuvi_ = advertised_device.getRSSI();
       printData(advertised_device.toString());
