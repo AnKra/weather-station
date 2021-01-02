@@ -1,3 +1,6 @@
+#ifndef __RUUVI__RUUVI_DECODER_H__
+#define __RUUVI__RUUVI_DECODER_H__
+
 #include <algorithm>
 #include <cctype>
 #include <sstream>
@@ -5,8 +8,9 @@
 #include <string>
 
 namespace weather_station {
+namespace ruuvi {
 
-static unsigned short int hexToUnsignedDec(const std::string &hex_val) {
+static uint16_t hexToUnsignedDec(const std::string &hex_val) {
   const auto supported_hex_length = 4;
   if (hex_val.length() != supported_hex_length) {
     std::stringstream ss;
@@ -16,22 +20,22 @@ static unsigned short int hexToUnsignedDec(const std::string &hex_val) {
   }
 
   int base = 1;
-  unsigned short int dec_val = 0;
+  int dec_val = 0;
 
   for (int i = hex_val.length() - 1; i >= 0; i--) {
     if (hex_val[i] >= '0' && hex_val[i] <= '9') {
-      dec_val += (hex_val[i] - 48) * base;
+      dec_val += static_cast<uint16_t>(hex_val[i] - 48) * base;
       base = base * 16;
     } else if (hex_val[i] >= 'A' && hex_val[i] <= 'F') {
-      dec_val += (hex_val[i] - 55) * base;
+      dec_val += static_cast<uint16_t>(hex_val[i] - 55) * base;
       base = base * 16;
     }
   }
 
-  return dec_val;
+  return static_cast<uint16_t>(dec_val);
 }
 
-static void decodeData(const std::string &raw_data, double &temperature, double &humidity, double &pressure) {
+static void decodeData(const std::string &raw_data, float &temperature, float &humidity, float &pressure) {
   auto hex_data = raw_data;
   std::transform(hex_data.begin(), hex_data.end(), hex_data.begin(), [](unsigned char c) { return std::toupper(c); });
 
@@ -46,9 +50,12 @@ static void decodeData(const std::string &raw_data, double &temperature, double 
 
   // see
   // https://github.com/ruuvi/ruuvi-sensor-protocols/blob/master/dataformat_05.md
-  temperature = static_cast<short int>(hexToUnsignedDec(hex_data.substr(6, 4))) * 0.005;
-  humidity = hexToUnsignedDec(hex_data.substr(10, 4)) * 0.0025;
-  pressure = hexToUnsignedDec(hex_data.substr(14, 4)) + 50000;
+  temperature = static_cast<float>(static_cast<int16_t>(hexToUnsignedDec(hex_data.substr(6, 4)))) * 0.005f;
+  humidity = static_cast<float>(hexToUnsignedDec(hex_data.substr(10, 4))) * 0.0025f;
+  pressure = static_cast<float>(hexToUnsignedDec(hex_data.substr(14, 4))) + 50000;
 }
 
+}  // namespace ruuvi
 }  // namespace weather_station
+
+#endif

@@ -7,11 +7,15 @@
 #include <SPIFFS.h>
 #include <TFT_eSPI.h>
 
-#include "bluetooth_listener.h"
-#include "colors.h"
-#include "graph.h"
+#include <ctime>
+#include <memory>
+
+#include "display/colors.h"
+#include "display/graph.h"
+#include "display/tft.h"
 #include "hal/Settings.h"
 #include "hal/wifiManager.h"
+#include "ruuvi/bluetooth_listener.h"
 
 // general
 bool setup_successful = false;
@@ -21,7 +25,18 @@ const int scan_time = 100;
 BLEScan *ble_scan;
 
 // display
-weather_station::Graph *graph;
+weather_station::display::Graph *graph;
+
+time_t getTime() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("WARNING: Local Time not available.");
+  } else {
+    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  }
+
+  return mktime(&timeinfo);
+}
 
 void setup() {
   Serial.begin(115200);
@@ -41,15 +56,15 @@ void setup() {
   hal::startWifi(settings.getSsid().c_str(), settings.getPassword().c_str());
 
   // bluetooth
-  std::function<void(double x, double y)> draw_function = [](const double x, const double y) {
+  std::function<void(float, float)> draw_function = [](const float temperature, const float /* humidity */) {
     assert(graph);
-    graph->drawPixel(x, y, YELLOW);
+    graph->addDataPoint(getTime(), temperature, YELLOW);
   };
 
   Serial.println("Scanning...");
   BLEDevice::init("");
   ble_scan = BLEDevice::getScan();
-  ble_scan->setAdvertisedDeviceCallbacks(new weather_station::BluetoothListener(draw_function));
+  ble_scan->setAdvertisedDeviceCallbacks(new weather_station::ruuvi::BluetoothListener(draw_function));
   ble_scan->setActiveScan(true);  // active scan uses more power, but get results faster
   ble_scan->setInterval(1);
   ble_scan->setWindow(1);  // less or equal setInterval value
@@ -57,29 +72,15 @@ void setup() {
   // display
   const int width = TFT_HEIGHT;
   const int height = TFT_WIDTH;
-  const double x_min = -2;
-  const double x_max = 20;
-  const double cell_width = 2;
-  const double y_min = -6;
-  const double y_max = 40;
-  const double cell_height = 2;
   const String title = {"Balkon"};
   const String x_label = {"t"};
   const String y_label = {"°C"};
 
-  graph = new weather_station::Graph(width, height, x_min, x_max, cell_width, y_min, y_max, cell_height);
-  graph->drawAxes(title, x_label, y_label);
+  std::unique_ptr<weather_station::display::Tft> tft = std::make_unique<weather_station::display::Tft>();
+  graph = new weather_station::display::Graph(std::move(tft), width, height, title, x_label, y_label);
+  graph->drawAxes();
 
   setup_successful = true;
-}
-
-void printLocalTime() {
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("WARNING: Local Time not available.");
-  } else {
-    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-  }
 }
 
 void loop() {
@@ -89,7 +90,6 @@ void loop() {
   }
 
   try {
-    printLocalTime();  // Demo NTP timing
     ble_scan->start(scan_time, false);
   } catch (const std::runtime_error &e) {
     Serial.println(e.what());
