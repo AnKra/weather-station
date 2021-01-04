@@ -1,3 +1,5 @@
+#ifndef __DISPLAY__COLORS_H__
+#define __DISPLAY__COLORS_H__
 
 #define LTBLUE 0xB6DF
 #define LTTEAL 0xBF5F
@@ -36,3 +38,5 @@
 #define DKPINK 0x9009
 #define DKPURPLE 0x4010
 #define DKGREY 0x4A49
+
+#endif

@@ -3,14 +3,11 @@
 #include <BLEDevice.h>
 #include <BLEScan.h>
 #include <BLEUtils.h>
-#include <SPI.h>
-#include <SPIFFS.h>
-#include <TFT_eSPI.h>
 
 #include <ctime>
 #include <memory>
 
-#include "display/colors.h"
+#include "display/epaper.h"
 #include "display/graph.h"
 #include "display/tft.h"
 #include "hal/Settings.h"
@@ -70,14 +67,16 @@ void setup() {
   ble_scan->setWindow(1);  // less or equal setInterval value
 
   // display
-  const int width = TFT_HEIGHT;
-  const int height = TFT_WIDTH;
-  const String title = {"Balkon"};
-  const String x_label = {"t"};
-  const String y_label = {"°C"};
+  const std::string title = {"Balkon"};
+  const std::string x_label = {"t"};
+  const std::string y_label = {"°C"};
 
-  std::unique_ptr<weather_station::display::Tft> tft = std::make_unique<weather_station::display::Tft>();
-  graph = new weather_station::display::Graph(std::move(tft), width, height, title, x_label, y_label);
+#if defined(TFT)
+  std::unique_ptr<weather_station::display::Tft> display = std::make_unique<weather_station::display::Tft>();
+#elif defined(EPAPER)
+  std::unique_ptr<weather_station::display::EPaper> display = std::make_unique<weather_station::display::EPaper>();
+#endif
+  graph = new weather_station::display::Graph(std::move(display), title, x_label, y_label);
   graph->drawAxes();
 
   setup_successful = true;
