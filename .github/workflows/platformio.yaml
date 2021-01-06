@@ -19,6 +19,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install platformio
     - name: Run PlatformIO esp32dev-tft
-      run: platformio run -d ${{ github.workspace }} -e esp32dev-tft
+      run: platformio run -d ${{ github.workspace }} -e esp32-tft
     - name: Run PlatformIO esp32dev-epaper
-      run: platformio run -d ${{ github.workspace }} -e esp32dev-epaper
+      run: platformio run -d ${{ github.workspace }} -e esp32-epaper
