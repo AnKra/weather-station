@@ -7,9 +7,12 @@
 #include <ctime>
 #include <memory>
 
-#include "display/epaper.h"
-#include "display/graph.h"
+#if defined(TFT)
 #include "display/tft.h"
+#elif defined(EPAPER)
+#include "display/epaper.h"
+#endif
+#include "display/graph.h"
 #include "hal/Settings.h"
 #include "hal/wifiManager.h"
 #include "ruuvi/bluetooth_listener.h"

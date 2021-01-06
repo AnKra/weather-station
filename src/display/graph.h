@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "display/colors.h"
-#include "display/tft.h"
+#include "display/display.h"
 
 namespace weather_station {
 namespace display {
