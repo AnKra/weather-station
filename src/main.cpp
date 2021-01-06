@@ -1,8 +1,12 @@
+#define ENABLE_GxEPD2_GFX 0
+
 #include <BLEAddress.h>
 #include <BLEAdvertisedDevice.h>
 #include <BLEDevice.h>
 #include <BLEScan.h>
 #include <BLEUtils.h>
+
+#include <SPIFFS.h>
 
 #include <ctime>
 #include <memory>
@@ -41,6 +45,19 @@ time_t getTime() {
 void setup() {
   Serial.begin(115200);
 
+  // display
+  const std::string title = {"Balkon"};
+  const std::string x_label = {"t"};
+  const std::string y_label = {"°C"};
+
+#if defined(TFT)
+  std::unique_ptr<weather_station::display::Tft> display = std::make_unique<weather_station::display::Tft>();
+#elif defined(EPAPER)
+  std::unique_ptr<weather_station::display::EPaper> display = std::make_unique<weather_station::display::EPaper>();
+#endif
+  graph = new weather_station::display::Graph(std::move(display), title, x_label, y_label);
+  graph->drawAxes();
+
   // Load Settings from flash
   hal::Settings settings;
   if (!SPIFFS.begin(true)) {
@@ -68,19 +85,6 @@ void setup() {
   ble_scan->setActiveScan(true);  // active scan uses more power, but get results faster
   ble_scan->setInterval(1);
   ble_scan->setWindow(1);  // less or equal setInterval value
-
-  // display
-  const std::string title = {"Balkon"};
-  const std::string x_label = {"t"};
-  const std::string y_label = {"°C"};
-
-#if defined(TFT)
-  std::unique_ptr<weather_station::display::Tft> display = std::make_unique<weather_station::display::Tft>();
-#elif defined(EPAPER)
-  std::unique_ptr<weather_station::display::EPaper> display = std::make_unique<weather_station::display::EPaper>();
-#endif
-  graph = new weather_station::display::Graph(std::move(display), title, x_label, y_label);
-  graph->drawAxes();
 
   setup_successful = true;
 }

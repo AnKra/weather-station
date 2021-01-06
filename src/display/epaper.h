@@ -8,8 +8,10 @@
 #include <sstream>
 #include <vector>
 
-#include <EPD_WaveShare_42.h>
-#include <MiniGrafx.h>
+#include <Adafruit_GFX.h>
+#include <Fonts/FreeSans9pt7b.h>
+#include <GxEPD2_3C.h>
+#include <epd3c/GxEPD2_420c.h>
 
 #include "display/colors.h"
 #include "display/display.h"
@@ -19,100 +21,72 @@ namespace display {
 
 class EPaper : public Display {
  public:
-  EPaper() : epd_(GFX_CS, GFX_RST, GFX_DC, GFX_BUSY) {
-    uint16_t palette[] = {BLACK, WHITE};
-    gfx_ = std::make_unique<MiniGrafx>(MiniGrafx(&epd_, BITS_PER_PIXEL, palette));
+  EPaper() { initializeGfx(); }
 
-    initializeGfx();
+  int width() {
+    Serial.println(display_.width());
+    Serial.println(display_.width());
+    return display_.width();
   }
 
-  int width() { return gfx_->getWidth(); }
+  int height() { return display_.height(); }
 
-  int height() { return gfx_->getHeight(); }
-
-  void clearScreen() override { gfx_->fillBuffer(1); }
+  void clearScreen() override { display_.firstPage(); }
 
   void drawGridLine(const int x0, const int y0, const int x1, const int y1) override {
-    gfx_->setColor(BLACK);
-    gfx_->drawLine(x0, y0, x1, y1);
+    display_.drawLine(x0, y0, x1, y1, GxEPD_BLACK);
   }
 
   void drawAxis(const int x0, const int y0, const int x1, const int y1, const std::string& label, const int label_pos_x,
                 const int label_pos_y, const TextAlignment label_position) override {
-    gfx_->setColor(BLACK);
-    gfx_->drawLine(x0, y0, x1, y1);
+    display_.drawLine(x0, y0, x1, y1, GxEPD_BLACK);
     drawTextLabel(label, label_pos_x, label_pos_y, label_position);
   }
 
   void drawTextLabel(const std::string& label, const int32_t x, const int32_t y,
                      const TextAlignment position) override {
-    gfx_->setColor(BLACK);
-    gfx_->setFont(ArialMT_Plain_10);
-    gfx_->setTextAlignment(toGfxPosition(position));
-    gfx_->drawString(x, y, String(label.c_str()));
+    display_.setTextColor(GxEPD_BLACK);
+    display_.setFont(&FreeSans9pt7b);
+    display_.setCursor(x, y);
+    display_.print(String(label.c_str()));
   }
 
   void drawDataLabel(const float label, const int32_t x, const int32_t y, const TextAlignment position) override {
-    gfx_->setColor(BLACK);
-    gfx_->setFont(ArialMT_Plain_10);
-    gfx_->setTextAlignment(toGfxPosition(position));
-    gfx_->drawString(x, y, String(label));
+    display_.setTextColor(GxEPD_BLACK);
+    display_.setFont(&FreeSans9pt7b);
+    display_.setCursor(x, y);
+    display_.print(String(label));
   }
 
   void drawTimeLabel(const time_t time, const int32_t x, const int32_t y, const TextAlignment position) override {
-    gfx_->setColor(BLACK);
-    gfx_->setFont(ArialMT_Plain_10);
-    gfx_->setTextAlignment(toGfxPosition(position));
+    display_.setTextColor(GxEPD_BLACK);
+    display_.setFont(&FreeSans9pt7b);
+    display_.setCursor(x, y);
     auto tm = *std::localtime(&time);
     std::ostringstream oss;
     oss << std::put_time(&tm, "%H:%M");
-    gfx_->drawString(x, y, String(oss.str().c_str()));
+    display_.print(String(oss.str().c_str()));
   }
 
   void drawPixel(const int32_t x, const int32_t y, const uint32_t /* color */) override {
-    gfx_->setColor(BLACK);
-    gfx_->setPixel(static_cast<uint16_t>(x), static_cast<uint16_t>(y));
+    display_.drawPixel(static_cast<uint16_t>(x), static_cast<uint16_t>(y), GxEPD_RED);
+    display_.drawPixel(static_cast<uint16_t>(x - 1), static_cast<uint16_t>(y - 1), GxEPD_RED);
+    display_.drawPixel(static_cast<uint16_t>(x - 1), static_cast<uint16_t>(y + 1), GxEPD_RED);
+    display_.drawPixel(static_cast<uint16_t>(x + 1), static_cast<uint16_t>(y - 1), GxEPD_RED);
+    display_.drawPixel(static_cast<uint16_t>(x + 1), static_cast<uint16_t>(y + 1), GxEPD_RED);
   }
 
-  void commit() override { gfx_->commit(); }
+  void commit() override { display_.nextPage(); }
 
  private:
   void initializeGfx() {
-    gfx_->init();
-    gfx_->setRotation(0);
-    gfx_->setFastRefresh(false);
-    gfx_->fillBuffer(1);
-    gfx_->setColor(BLACK);
-    gfx_->setFont(ArialMT_Plain_10);
-    gfx_->drawString(10, 10, "Hello World!");
-    gfx_->setColor(BLACK);
-    gfx_->setFont(ArialMT_Plain_10);
-    gfx_->drawString(10, 10 + 1 * 50, "Hello World!");
-    gfx_->setColor(BLACK);
-    gfx_->setFont(ArialMT_Plain_10);
-    gfx_->drawString(10, 10 + 2 * 50, "Hello World!");
-    gfx_->commit();
+    SPI.begin(EPD2_SCK, EPD2_MISO, EPD2_MOSI, EPD2_CS);
+    display_.init(115200);
+    display_.setRotation(0);
+    display_.setFullWindow();
   }
 
-  TEXT_ALIGNMENT toGfxPosition(TextAlignment position) {
-    switch (position) {
-      case TextAlignment::BOTTOM_CENTER:
-        return TEXT_ALIGN_CENTER;
-      case TextAlignment::BOTTOM_RIGHT:
-        return TEXT_ALIGN_RIGHT;
-      case TextAlignment::MIDDLE_LEFT:
-        return TEXT_ALIGN_LEFT;
-      case TextAlignment::TOP_CENTER:
-        return TEXT_ALIGN_CENTER;
-      case TextAlignment::TOP_LEFT:
-        return TEXT_ALIGN_LEFT;
-      default:
-        return TEXT_ALIGN_LEFT;
-    }
-  }
-
-  EPD_WaveShare42 epd_;
-  std::unique_ptr<MiniGrafx> gfx_;
+  GxEPD2_3C<GxEPD2_420c, GxEPD2_420c::HEIGHT> display_ = GxEPD2_420c(EPD2_CS, EPD2_DC, EPD2_RST, EPD2_BUSY);
 };
 
 }  // namespace display
