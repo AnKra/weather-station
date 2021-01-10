@@ -43,28 +43,32 @@ class EPaper : public Display {
     drawTextLabel(label, label_pos_x, label_pos_y, label_position);
   }
 
-  void drawTextLabel(const std::string& label, const int32_t x, const int32_t y,
-                     const TextAlignment position) override {
+  void drawTextLabel(const std::string& label, int32_t x, int32_t y, const TextAlignment position) override {
+    alignTextPosition(position, x, y);
     display_.setTextColor(GxEPD_BLACK);
     display_.setFont(&FreeSans9pt7b);
     display_.setCursor(x, y);
     display_.print(String(label.c_str()));
   }
 
-  void drawDataLabel(const float label, const int32_t x, const int32_t y, const TextAlignment position) override {
+  void drawDataLabel(const float label, int32_t x, int32_t y, const TextAlignment position) override {
+    alignTextPosition(position, x, y);
     display_.setTextColor(GxEPD_BLACK);
     display_.setFont(&FreeSans9pt7b);
     display_.setCursor(x, y);
-    display_.print(String(label));
+    std::ostringstream oss;
+    oss << static_cast<int>(label) << " °C";
+    display_.print(String(oss.str().c_str()));
   }
 
-  void drawTimeLabel(const time_t time, const int32_t x, const int32_t y, const TextAlignment position) override {
+  void drawTimeLabel(const time_t time, int32_t x, int32_t y, const TextAlignment position) override {
+    alignTextPosition(position, x, y);
     display_.setTextColor(GxEPD_BLACK);
     display_.setFont(&FreeSans9pt7b);
     display_.setCursor(x, y);
     auto tm = *std::localtime(&time);
     std::ostringstream oss;
-    oss << std::put_time(&tm, "%H:%M");
+    oss << std::put_time(&tm, "%H");
     display_.print(String(oss.str().c_str()));
   }
 
@@ -76,7 +80,7 @@ class EPaper : public Display {
     display_.drawPixel(static_cast<uint16_t>(x + 1), static_cast<uint16_t>(y + 1), GxEPD_RED);
   }
 
-  void commit() override { display_.nextPage(); }
+  void commit() override { display_.display(); }
 
  private:
   void initializeGfx() {
@@ -84,6 +88,23 @@ class EPaper : public Display {
     display_.init(115200);
     display_.setRotation(0);
     display_.setFullWindow();
+  }
+
+  void alignTextPosition(TextAlignment position, int32_t& x, int32_t& y) {
+    switch (position) {
+      case TextAlignment::BOTTOM_CENTER:
+        x -= 10;
+        break;
+      case TextAlignment::MIDDLE_LEFT:
+        x -= 5;
+        y += 5;
+        break;
+      case TextAlignment::BOTTOM_RIGHT:
+      case TextAlignment::TOP_CENTER:
+      case TextAlignment::TOP_LEFT:
+      default:
+        break;
+    }
   }
 
   GxEPD2_3C<GxEPD2_420c, GxEPD2_420c::HEIGHT> display_ = GxEPD2_420c(EPD2_CS, EPD2_DC, EPD2_RST, EPD2_BUSY);

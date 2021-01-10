@@ -58,7 +58,8 @@ class Graph {
   }
 
   void addDataPoint(const seconds new_x, const degrees new_y, const unsigned int color) {
-    data_x_.push_back(new_x);
+    auto seconds_since_midnight = new_x % (24 * 60 * 60);
+    data_x_.push_back(seconds_since_midnight);
     data_y_.push_back(new_y);
 
     updateVariablesForGraphCalculation();
@@ -74,17 +75,12 @@ class Graph {
 
  private:
   void updateVariablesForGraphCalculation() {
-    if (!data_x_.empty()) {
-      x_min_ = *std::min_element(std::begin(data_x_), std::end(data_x_)) - k_x_padding_s_;
-      x_max_ = *std::max_element(std::begin(data_x_), std::end(data_x_)) + k_x_padding_s_;
-    }
     if (!data_y_.empty()) {
       y_min_ = std::floor(*std::min_element(std::begin(data_y_), std::end(data_y_))) - 2 * k_y_padding_deg_;
       y_max_ = std::ceil(*std::max_element(std::begin(data_y_), std::end(data_y_))) + 2 * k_y_padding_deg_;
     }
 
     pixel_per_degree_ = static_cast<degrees>(height_px_) / (y_max_ - y_min_);
-    pixel_per_second_ = static_cast<degrees>(width_px_) / static_cast<degrees>(x_max_ - x_min_);
   }
 
   int secondsToPx(const seconds x) const {
@@ -104,15 +100,15 @@ class Graph {
   const std::string x_label_;
   const std::string y_label_;
 
-  seconds x_min_ = 0;
-  seconds x_max_ = 240;
-  constexpr static seconds k_cell_width_s_ = 120;
+  const seconds x_min_ = 0;
+  const seconds x_max_ = 60 * 60 * 24;                     // 60s * 60min * 24h
+  constexpr static seconds k_cell_width_s_ = 60 * 60 * 2;  // 60s * 60min * 2h
   degrees y_min_ = -6;
   degrees y_max_ = 40;
   constexpr static degrees k_cell_height_deg_ = 1;
-  float pixel_per_second_;
+  const float pixel_per_second_ = static_cast<float>(width_px_) / static_cast<float>(x_max_ - x_min_);
   float pixel_per_degree_;
-  constexpr static auto k_x_padding_s_ = k_cell_width_s_;
+  constexpr static auto k_x_padding_s_ = 0;
   constexpr static auto k_y_padding_deg_ = k_cell_height_deg_;
 
   std::vector<seconds> data_x_;
