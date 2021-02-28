@@ -69,6 +69,14 @@ class EPaper : public Display {
     gfx_->drawString(x, y, String(oss.str().c_str()));
   }
 
+  void drawDataMeasurement(const time_t time, const float label, const int32_t x, const int32_t y,
+                           const TextAlignment position) override {
+    gfx_->setColor(BLACK);
+    gfx_->setFont(ArialMT_Plain_24);
+    gfx_->setTextAlignment(toGfxPosition(position));
+    gfx_->drawString(x, y, String(label) + "°C");
+
+    drawTimeLabel(time, x, y + 30, position);
   }
 
   void drawPixel(const int32_t x, const int32_t y, const uint32_t /* color */) override {

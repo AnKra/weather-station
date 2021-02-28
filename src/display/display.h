@@ -33,6 +33,9 @@ class Display {
 
   virtual void drawTimeLabel(const time_t time, const int32_t x, const int32_t y, const TextAlignment position);
 
+  virtual void drawDataMeasurement(const time_t time, const float label, const int32_t x, const int32_t y,
+                                   const TextAlignment position);
+
   virtual void drawPixel(const int32_t x, const int32_t y, const uint32_t color);
 
   virtual void commit() {}

@@ -50,7 +50,7 @@ class Graph {
       } else {
         display_->drawGridLine(x_px, 0, x_px, height_px_);
       }
-      display_->drawTimeLabel(x, x_px, height_px_, TextAlignment::BOTTOM_CENTER);
+      display_->drawTimeLabel(x, x_px, height_px_ - 17, TextAlignment::TOP_CENTER);
     }
 
     // draw title
@@ -69,6 +69,9 @@ class Graph {
     for (auto x = data_x_.begin(); x != data_x_.end() && y != data_y_.end(); ++y, ++x) {
       display_->drawPixel(secondsToPx(*x), degreesToPx(*y), color);
     }
+
+    display_->drawDataMeasurement(*data_x_.rbegin(), static_cast<double>(*data_y_.rbegin()), (width_px_ / 2) * 1.5, 10,
+                                  TextAlignment::MIDDLE_LEFT);
 
     display_->commit();
   }
