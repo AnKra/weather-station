@@ -26,6 +26,8 @@ BLEScan *ble_scan;
 
 // display
 weather_station::display::Graph *graph;
+const double update_frequency_min = 2.;
+time_t last_display_update = 0;
 
 time_t getTime() {
   struct tm timeinfo;
@@ -71,7 +73,12 @@ void setup() {
   // bluetooth
   std::function<void(float, float)> draw_function = [](const float temperature, const float /* humidity */) {
     assert(graph);
-    graph->addDataPoint(getTime(), temperature, YELLOW);
+    auto time = getTime();
+    auto difftime_min = difftime(time, last_display_update) / 60.;
+    if (difftime_min > update_frequency_min) {
+      graph->addDataPoint(time, temperature, YELLOW);
+      last_display_update = time;
+    }
   };
 
   Serial.println("Scanning...");
