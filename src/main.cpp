@@ -1,12 +1,8 @@
-#define ENABLE_GxEPD2_GFX 0
-
 #include <BLEAddress.h>
 #include <BLEAdvertisedDevice.h>
 #include <BLEDevice.h>
 #include <BLEScan.h>
 #include <BLEUtils.h>
-
-#include <SPIFFS.h>
 
 #include <ctime>
 #include <memory>
